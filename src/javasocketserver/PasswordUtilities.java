@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Arrays;
 //import static javasocketserver.JavaSocketServer.storedHash;
 //import static javasocketserver.JavaSocketServer.storedPassword;
 //import static javasocketserver.JavaSocketServer.storedUser;
@@ -35,8 +36,6 @@ public class PasswordUtilities {
         random = new SecureRandom();
     }
 
-    static int keyLeng = 4;
-
     private static byte[] saltedHashedPassword(String password, byte[] salt, int iterations) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
@@ -50,41 +49,22 @@ public class PasswordUtilities {
         return saltedHashedPassword(password, user.salt, user.iterations);
     }
 
-    private static void generateSaltAndHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-// not sure if this function will be useful. Incomplete
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-
-        KeySpec spec = new PBEKeySpec(storedPassword.toCharArray(), salt, iterations, keyLength);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-
-        User newUser = new User();
-        //newUser.userName = storedUserName;
-        newUser.hash = hash;
-        newUser.salt = salt;
-        newUser.iterations = iterations;
-
-    }
-
     private static boolean isCorrectPassword(User user, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-
         byte[] computedHash = saltedHashedPassword(password, user);
-
-        newUser.hash == hash;
-
+        return Arrays.equals(computedHash, user.hash);
     }
 
     private static User prepareUser(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-        User newUser = new User();
-        newUser.userName = userName;
-
         byte[] salt = new byte[16];
         random.nextBytes(salt);
+        
+        // hash can be computed using the salt and iterations stored in the User,
+        // so set up the rest of the User, then the hash.
+        
+        User newUser = new User();
+        newUser.userName = userName;
         newUser.salt = salt;
-
         newUser.iterations = iterations;
 
         newUser.hash = saltedHashedPassword(password, newUser);
