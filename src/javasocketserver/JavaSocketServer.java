@@ -21,7 +21,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -47,15 +49,22 @@ public class JavaSocketServer {
 
     static String storedUserName = "friend";
     static String storedSalt = "";
-    static String storedHash = "";
+    static byte [] storedHash = null;
     static String storedPassword="1234";
+    
+    static User storedUser;
     
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        try {
         addStoredUser();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            System.out.println("Unexpected exception - exiting program");
+            return;
+        }
         System.out.println("Starting");
         int requestPortNumber = 1234;
         try ( ServerSocket serverSocket = new ServerSocket(requestPortNumber)) {
@@ -188,7 +197,7 @@ public class JavaSocketServer {
 
     private static boolean passwordCorrect(String user, String passwordIn) {
         if (user.equals(storedUserName)) {
-            return passwordIn == storedHash;
+            return passwordIn == storedPassword;
         }
         if (passwordIn.equals(user)) {
             return true;
@@ -197,12 +206,12 @@ public class JavaSocketServer {
 
     }
 
-    private static void addStoredUser() {
+    private static void addStoredUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
         
         // Crypto code based on the howto at https://www.baeldung.com/java-password-hashing
         
         // should move rng init to separate place
-        
+
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
@@ -214,9 +223,14 @@ public class JavaSocketServer {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         
         byte[] hash = factory.generateSecret(spec).getEncoded();
+        storedHash = hash;
         
-
-
+        storedUser = new User();
+        storedUser.userName = storedUserName;
+        storedUser.hash = hash;
+        storedUser.salt = salt;
+        storedUser.iterations = iterations;
+        
 
     }
 }
