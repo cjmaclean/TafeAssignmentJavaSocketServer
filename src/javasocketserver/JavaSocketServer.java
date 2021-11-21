@@ -112,7 +112,7 @@ public class JavaSocketServer {
                         loginResponse(inStream, outStream);
                     } else if (inLine.equalsIgnoreCase(statusCommand)) {
                         if (loggedIn) {
-                            write2(outStream, message, "Status: available");
+                            write2(outStream, message, "Status: " + clientStatusString);
                             write2(outStream, message, "Enter 'available' or 'busy' to update status,");
                             write2(outStream, message, "or use the shortcuts 'a' or 'b'");
                             write2(outStream, message, "or enter a blank line to leave it unchanged");
