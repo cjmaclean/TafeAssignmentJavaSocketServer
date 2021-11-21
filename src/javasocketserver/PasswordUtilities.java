@@ -32,7 +32,7 @@ public class PasswordUtilities {
     static int iterations = 1024;
     static int keyLength = 128;
 
-    private static void PasswordUtilities() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static void initPasswordUtilities() throws NoSuchAlgorithmException, InvalidKeySpecException {
         random = new SecureRandom();
     }
 

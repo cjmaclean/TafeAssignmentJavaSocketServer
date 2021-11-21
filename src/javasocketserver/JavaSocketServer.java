@@ -198,18 +198,18 @@ public class JavaSocketServer {
     }
 
     private static boolean passwordCorrect(String user, String passwordIn) {
-        if (user.equals(storedUserName)) {
+        User foundUser = usersByName.get(user);
+        // null if not found, which needs to be checked for
+        if (foundUser != null) {
             //return passwordIn.equals(storedPassword);
             try {
-                return PasswordUtilities.isCorrectPassword(storedUser, passwordIn);
+                return PasswordUtilities.isCorrectPassword(foundUser, passwordIn);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
                 // in case of failure, don't allow the login
                 return false;
             }
         }
-        if (passwordIn.equals(user)) {
-            return true;
-        }
+
         return false;
     }
 
@@ -233,13 +233,19 @@ public class JavaSocketServer {
         byte[] hash = factory.generateSecret(spec).getEncoded();
         storedHash = hash;
         
-        storedUser = new User();
-        storedUser.userName = storedUserName;
-        storedUser.hash = hash;
-        storedUser.salt = salt;
-        storedUser.iterations = iterations;
-        
+//        storedUser = new User();
+//        storedUser.userName = storedUserName;
+//        storedUser.hash = hash;
+//        storedUser.salt = salt;
+//        storedUser.iterations = iterations;
+
+        PasswordUtilities.initPasswordUtilities();
+         
+        storedUser = PasswordUtilities.prepareUser(storedUserName, storedPassword);
 
         usersByName.put(storedUserName, storedUser);
+        User adminUser = PasswordUtilities.prepareUser("admin", "admin");
+        usersByName.put("admin", adminUser);
+        
     }
 }
