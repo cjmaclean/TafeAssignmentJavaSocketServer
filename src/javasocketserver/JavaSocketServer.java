@@ -108,9 +108,8 @@ public class JavaSocketServer {
                                 write2(outStream, message, "Enter 'adduser' to start adding a new user.");
                             }
                         }
-                    } else if (!loggedIn && inLine.equalsIgnoreCase(loginCommand)) {
+                    } else if (inLine.equalsIgnoreCase(loginCommand)) {
                         loginResponse(inStream, outStream);
-
                     } else if (inLine.equalsIgnoreCase(statusCommand)) {
                         if (loggedIn) {
                             write2(outStream, message, "Status: available");
@@ -181,6 +180,7 @@ public class JavaSocketServer {
             loggedIn = false;
             administrator = false;
             currentUser = "";
+            write2(outStream, message, "No such user.");
             return;
         }
         // If here, then it's a valid username
@@ -194,6 +194,8 @@ public class JavaSocketServer {
             write2(outStream, message, "Logged in.");
         } else {
             loggedIn = false;
+            administrator = false;
+            currentUser = "";
             write2(outStream, message, "Wrong password.");
         }
     }
