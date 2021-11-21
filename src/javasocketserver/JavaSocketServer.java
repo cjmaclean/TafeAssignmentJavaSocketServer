@@ -49,8 +49,6 @@ public class JavaSocketServer {
     static String guestUser = "guest";
 
     static String storedUserName = "friend";
-    static String storedSalt = "";
-    static byte [] storedHash = null;
     static String storedPassword="1234";
     
     static User storedUser;
@@ -135,8 +133,11 @@ public class JavaSocketServer {
                         }
                     } else if (inLine.equalsIgnoreCase(addUserCommand)) {
                         if (administrator) {
-                            write2(outStream, message, "Adding user guest, password guest.");
-                            user2 = guestUser;
+                            authorisedAddUserResponse(inStream, outStream);
+                            //write2(outStream, query, "username to add");
+//                            write2(outStream, message, "Adding user guest, password guest.");
+//                            user2 = guestUser;
+//                            addUserToTable(guestUser, guestUser);
                         } else {
                             write2(outStream, message, "Cannot add user without logging in as administrator");
                         }
@@ -197,6 +198,16 @@ public class JavaSocketServer {
         }
     }
 
+                                
+    private static void authorisedAddUserResponse(DataInputStream inStream, DataOutputStream outStream)  throws IOException {
+        write2(outStream, query, "username to add");
+        String userNameResponse = inStream.readUTF();
+        String passwordToSet = userNameResponse.concat("ABC");
+        write2(outStream, message, "Adding user " + userNameResponse + " with password " + passwordToSet);
+        addUserToTable(userNameResponse, passwordToSet);
+    }
+    
+    
     private static boolean passwordCorrect(String user, String passwordIn) {
         User foundUser = usersByName.get(user);
         // null if not found, which needs to be checked for
@@ -213,9 +224,15 @@ public class JavaSocketServer {
         return false;
     }
 
-    private static void addUserToTable(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        User user = PasswordUtilities.prepareUser(userName, password);
-        usersByName.put(userName, user);
+    private static void addUserToTable(String userName, String password) {
+        try {
+            User user = PasswordUtilities.prepareUser(userName, password);
+            usersByName.put(userName, user);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            // Shouldn't fail, but if it does, don't add the user
+            System.out.println("Unexpected exception - cannot add user");
+            return;
+        }
     }
     private static void addStoredUsers() throws NoSuchAlgorithmException, InvalidKeySpecException {
         
