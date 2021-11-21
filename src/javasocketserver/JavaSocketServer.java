@@ -62,7 +62,7 @@ public class JavaSocketServer {
      */
     public static void main(String[] args) {
         try {
-        addStoredUser();
+        addStoredUsers();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
             System.out.println("Unexpected exception - exiting program");
             return;
@@ -213,39 +213,18 @@ public class JavaSocketServer {
         return false;
     }
 
-    
-    private static void addStoredUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private static void addUserToTable(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        User user = PasswordUtilities.prepareUser(userName, password);
+        usersByName.put(userName, user);
+    }
+    private static void addStoredUsers() throws NoSuchAlgorithmException, InvalidKeySpecException {
         
-        // Crypto code based on the howto at https://www.baeldung.com/java-password-hashing
-        
-        // should move rng init to separate place
-
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-        
-        int iterations = 1024;
-        int keyLength = 128;
-        
-        KeySpec spec = new PBEKeySpec(storedPassword.toCharArray(), salt, iterations, keyLength);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-        storedHash = hash;
-        
-//        storedUser = new User();
-//        storedUser.userName = storedUserName;
-//        storedUser.hash = hash;
-//        storedUser.salt = salt;
-//        storedUser.iterations = iterations;
-
         PasswordUtilities.initPasswordUtilities();
          
-        storedUser = PasswordUtilities.prepareUser(storedUserName, storedPassword);
-
-        usersByName.put(storedUserName, storedUser);
-        User adminUser = PasswordUtilities.prepareUser("admin", "admin");
-        usersByName.put("admin", adminUser);
+        //storedUser = PasswordUtilities.prepareUser(storedUserName, storedPassword);
+        //usersByName.put(storedUserName, storedUser);
+        addUserToTable(storedUserName, storedPassword);
+        addUserToTable("admin", "admin");
         
     }
 }
