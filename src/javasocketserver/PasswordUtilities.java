@@ -49,12 +49,12 @@ public class PasswordUtilities {
         return saltedHashedPassword(password, user.salt, user.iterations);
     }
 
-    private static boolean isCorrectPassword(User user, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static boolean isCorrectPassword(User user, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] computedHash = saltedHashedPassword(password, user);
         return Arrays.equals(computedHash, user.hash);
     }
 
-    private static User prepareUser(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static User prepareUser(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         byte[] salt = new byte[16];
         random.nextBytes(salt);

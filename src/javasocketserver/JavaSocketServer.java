@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.HashMap;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
@@ -53,6 +54,7 @@ public class JavaSocketServer {
     static String storedPassword="1234";
     
     static User storedUser;
+    static HashMap<String, User> usersByName = new HashMap<>();
     
 
     /**
@@ -197,15 +199,21 @@ public class JavaSocketServer {
 
     private static boolean passwordCorrect(String user, String passwordIn) {
         if (user.equals(storedUserName)) {
-            return passwordIn.equals(storedPassword);
+            //return passwordIn.equals(storedPassword);
+            try {
+                return PasswordUtilities.isCorrectPassword(storedUser, passwordIn);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+                // in case of failure, don't allow the login
+                return false;
+            }
         }
         if (passwordIn.equals(user)) {
             return true;
         }
         return false;
-
     }
 
+    
     private static void addStoredUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
         
         // Crypto code based on the howto at https://www.baeldung.com/java-password-hashing
@@ -232,5 +240,6 @@ public class JavaSocketServer {
         storedUser.iterations = iterations;
         
 
+        usersByName.put(storedUserName, storedUser);
     }
 }
