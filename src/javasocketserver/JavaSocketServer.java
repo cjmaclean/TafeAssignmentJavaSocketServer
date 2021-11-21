@@ -171,11 +171,10 @@ public class JavaSocketServer {
         currentUser = clientResponse;
         if (clientResponse.equals(adminUser)) {
             administrator = true;
-        } else if (clientResponse.equals(user2)) {
-            administrator = false;
-        } else if (clientResponse.equals(storedUserName)) {
+        } else if (usersByName.containsKey(clientResponse)) {
             // Put code that will change to use a list of users here
             administrator = false;
+            currentUser = clientResponse;
         } else {
             loggedIn = false;
             administrator = false;
