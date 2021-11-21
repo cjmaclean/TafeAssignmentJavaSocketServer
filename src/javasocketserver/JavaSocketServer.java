@@ -197,7 +197,7 @@ public class JavaSocketServer {
 
     private static boolean passwordCorrect(String user, String passwordIn) {
         if (user.equals(storedUserName)) {
-            return passwordIn == storedPassword;
+            return passwordIn.equals(storedPassword);
         }
         if (passwordIn.equals(user)) {
             return true;
